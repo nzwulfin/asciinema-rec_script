@@ -17,3 +17,21 @@ list:
 
 clean:
 	$(RM) $(SCREENCASTS_DIR)/*.cast
+
+ARCH    ?= $(shell uname -m)
+VERSION := $(shell cat version.txt)
+
+.PHONY: dist clean-dist
+
+dist:
+	mkdir -p dist
+	podman run --rm \
+	    --user root \
+	    -v $(CURDIR):/src:ro,Z \
+	    -v $(CURDIR)/dist:/dist:Z \
+	    -e ARCH=$(ARCH) \
+	    --entrypoint bash \
+	    registry.access.redhat.com/hi/core-runtime:latest-builder /src/scripts/build-dist.sh
+
+clean-dist:
+	$(RM) -r dist
